@@ -66,14 +66,6 @@
     <?php endforeach; ?>
 
 
-
-
-
-
-
-
-
-
     <li class="nav-item">
       <a class="nav-link" href="<?= base_url('auth/logout'); ?>">
         <i class="fas fa-fw fa-fw fa-user"></i>
