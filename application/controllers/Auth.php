@@ -103,10 +103,19 @@ class Auth extends CI_Controller
         'date_created' => time()
       ];
 
-      // $this->db->insert('user', $data);
+      // siapkan token 
+      $token = base64_encode(random_bytes(32));
+      $user_token = [
+        'email' => $this->input->post('email', true),
+        'token' => $token,
+        'date_created' =>  time()
+      ];
+
+      $this->db->insert('user', $data);
+      $this->db->insert('user_token', $user_token);
 
       // method fitur kirim email
-      $this->_sendEmail();
+      $this->_sendEmail($token, 'verify');
 
       $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
       Congratulations! your account has been created, Please Login
@@ -115,7 +124,7 @@ class Auth extends CI_Controller
     }
   }
 
-  private function _sendEmail()
+  private function _sendEmail($token, $type)
   {
     $config = [
       'protocol' => 'smtp',
@@ -133,9 +142,12 @@ class Auth extends CI_Controller
     $this->email->initialize($config);
 
     $this->email->from('abd.poto00@gmail.com', 'Abadi Poto');
-    $this->email->to('mdfaker1111@gmail.com');
-    $this->email->subject('Testing');
-    $this->email->message('Hello World');
+    $this->email->to($this->input->post('email'));
+
+    if ($type == 'verify') {
+      $this->email->subject('Account Verification');
+      $this->email->message('Click this link to verify you account : <a href="' . base_url() . 'auth/verify?email=' . $this->input->post('email') . '&token=' . urlencode($token) . '">Activate</a>');
+    }
 
     if ($this->email->send()) {
       return true;
